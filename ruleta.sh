@@ -35,14 +35,10 @@ ruleta () {
 
 datos_apuesta() {
   echo -e "\n${yellowColour}[+]${endColour} ${grayColour}Dinero actual:${endColour} ${yellowColour}\$${money}${endColour}"
-<<<<<<< HEAD
   
   if [ "$technique" == "m" ]; then
    echo -ne "${yellowColour}[+]${endColour} ${grayColour}Cuanto dinero deseas apostar? -> ${endColour}" && read initial_bet
   fi
-=======
-  echo -ne "${yellowColour}[+]${endColour} ${grayColour}Cuanto dinero deseas apostar? -> ${endColour}" && read initial_bet
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
 }
 
 parImpar () {
@@ -51,12 +47,7 @@ parImpar () {
     par_impar=$(echo "$par_impar" | tr '[:upper:]' '[:lower:]')
 
     if [ "$par_impar" == "par" ] || [ "$par_impar" == "impar" ]; then
-<<<<<<< HEAD
       break 
-=======
-      echo -e "\n${yellowColour}[+]${endColour} ${grayColour}Vamos a jugar con la cantidad inicial de ${yellowColour}\$${initial_bet}${endColour} ${grayColour}a${endColour} ${blueColour}$par_impar${endColour}\n"
-    break 
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
     else
       echo -e "${redColour}[!] Opción no válida, selecciona (par/impar)${endColour}\n"
     fi
@@ -64,21 +55,13 @@ parImpar () {
 }
 
 estadisticas() {
-<<<<<<< HEAD
   perdida=$(($money_backup - $gananciaMaxima))
-=======
-  perdida=$(($money - $money_backup))
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
 
   sleep 3
 
   echo -e "${yellowColour}[+]${endColour} ${grayColour}La siguiente apuesta es de $initial_bet, tu saldo actual es de \$$money${endColour}"
 
-<<<<<<< HEAD
   echo -e "${redColour}[!] Te haz quedado sin dinero para la siguiente apuesta\n"
-=======
-  echo -e "${redColour}[!] Te haz quedado sin dinero, la casa siempre gana B)\n"
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
 
   echo -e "${yellowColour}[+]${endColour} ${grayColour}Numero de vueltas: ${blueColour}$vueltas${endColour}"
   echo -e "${yellowColour}[+]${endColour} ${grayColour}Numero de vueltas ganadas: ${greenColour}$vueltasGanadas${endColour}"
@@ -91,11 +74,7 @@ estadisticas() {
   
   echo -e "${yellowColour}[+]${endColour} ${grayColour}Número de vueltas perdidas seguidas: ${redColour}$peorRacha${endColour}"
   echo -e "${yellowColour}[+]${endColour} ${grayColour}Serie de números de vueltas perdidas seguidas: ${redColour}$serieMaximaPerdidas${endColour}"
-<<<<<<< HEAD
   echo -e "${yellowColour}[+]${endColour} ${grayColour}Pérdida en la última apuesta: ${redColour}\$$ultimaPerdida ${endColour}"
-=======
-  echo -e "${yellowColour}[+]${endColour} ${grayColour}Pérdida en la última apuesta: ${redColour}\$-$money ${endColour}"
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
   echo -e "${yellowColour}[+]${endColour} ${grayColour}Perdida real: ${redColour}\$$perdida ${endColour}"
   echo -e "${yellowColour}[+]${endColour} ${grayColour}Perdida desde el pico: ${redColour}\$-$gananciaMaxima ${endColour}\n"
 
@@ -103,17 +82,10 @@ estadisticas() {
 }
 
 # Tecnicas
-<<<<<<< HEAD
 tecnicaMartingala () {
   datos_apuesta
   parImpar
 
-
-=======
-martingala () {
-  datos_apuesta
-  parImpar
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
   initial_bet_backup=$initial_bet
   money_backup=$money
   # Estadisticas
@@ -129,7 +101,6 @@ martingala () {
   # Pierdes
   declare -i vueltasPerdidas=0
   declare -i peorRacha=0
-<<<<<<< HEAD
   declare -i ultimaPerdida=0
   serieActualPerdidas=""
   serieMaximaPerdidas=""
@@ -137,34 +108,19 @@ martingala () {
   echo -e "\n${yellowColour}[+]${endColour} ${grayColour}Vamos a jugar con la cantidad inicial de ${yellowColour}\$${initial_bet}${endColour} ${grayColour}a${endColour} ${blueColour}$par_impar${endColour}\n"
   
   tput civis
-  case "$par_impar" in
-    par)
-      while [[ "$money" -ge 0 ]]; do
-        #sleep 1
-        
-        #if [[ "$initial_bet" -gt "$money" ]]; then
-         # break 
-        #fi
-=======
+  
   serieActualPerdidas=""
   serieMaximaPerdidas=""
 
   case "$par_impar" in
     par)
       while [[ "$money" -gt 0 ]]; do
-        #sleep 1
-        if [[ "$initial_bet" -gt "$money" ]]; then
-          break 
-        fi
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
-
         declare -i vueltas+=1
         numero=$(ruleta)
         # Pierdes
-<<<<<<< HEAD
+
         ultimaPerdida=initial_bet
-=======
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
+
         if [ "$numero" -eq 0 ]; then
           #echo "$numero"
           serieActualGanadas=""
@@ -184,10 +140,7 @@ martingala () {
           if [[ "$count1" -gt "$count2" ]]; then
               serieMaximaPerdidas=$serieActualPerdidas
           fi
-<<<<<<< HEAD
-=======
-          
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
+
          # Ganas
         else
           if [ "$(($numero % 2))" -eq 0 ]; then
@@ -196,11 +149,7 @@ martingala () {
 
            # echo "$numero"
             money=$(($money - $initial_bet))
-<<<<<<< HEAD
             #echo -e "${yellowColour}[+]${endColour} ${grayColour} Acabas de apostar${endColour} ${yellowColour}\$$initial_bet ${endColour} ${grayColour}ahora tienes la cantida de${endColour} ${yellowColour}\$$money${endColour}"
-=======
-           # echo -e "${yellowColour}[+]${endColour} ${grayColour} Acabas de apostar${endColour} ${yellowColour}\$$initial_bet ${endColour} ${grayColour}ahora tienes la cantida de${endColour} ${yellowColour}\$$money${endColour}"
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
 
             reward=$(($initial_bet * 2))
             money=$(($money + $reward))
@@ -228,10 +177,7 @@ martingala () {
 
           # Pierdes
           else
-<<<<<<< HEAD
             ultimaPerdida=initial_bet
-=======
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
             #echo "$numero"
             rachaActualGanadas=0
             serieActualGanadas=""
@@ -256,23 +202,15 @@ martingala () {
     ;;
     impar)
       while [[ "$money" -gt 0 ]]; do
-<<<<<<< HEAD
         #if [[ "$initial_bet" -gt "$money" ]]; then
          # break 
         #fi
-=======
-        if [[ "$initial_bet" -gt "$money" ]]; then
-          break 
-        fi
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
 
         declare -i vueltas+=1
         numero=$(ruleta)
 
-<<<<<<< HEAD
         ultimaPerdida=initial_bet
-=======
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
+
         if [ "$numero" -eq 0 ]; then
           serieActualGanadas=""
           rachaActualGanadas=0
@@ -325,10 +263,7 @@ martingala () {
             fi
 
           else
-<<<<<<< HEAD
             ultimaPerdida=initial_bet
-=======
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
             rachaActualGanadas=0
             serieActualGanadas=""
             money=$(($money - $initial_bet))
@@ -350,7 +285,6 @@ martingala () {
       estadisticas
     ;;  
   esac
-<<<<<<< HEAD
   tput cnorm
 }
 
@@ -441,8 +375,6 @@ declare -a serieNumeros=(1 2 3 4)
     ;; 
   esac
 
-=======
->>>>>>> fb76bdaa658416f387d41c63cb14d5165317b7bd
 }
 
 #getopts
