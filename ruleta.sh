@@ -52,20 +52,32 @@ parImpar () {
       echo -e "${redColour}[!] Opción no válida, selecciona (par/impar)${endColour}\n"
     fi
   done
+
+  echo -e "\n${blueColour}[+]${endColour} ${grayColour}La ruleta está girando...${endColour}"
 }
 
 estadisticas() {
   perdida=$(($money_backup - $gananciaMaxima))
 
-  sleep 3
+  sleep 2
 
-  echo -e "${yellowColour}[+]${endColour} ${grayColour}La siguiente apuesta es de $initial_bet, tu saldo actual es de \$$money${endColour}"
+  echo -e "\n${redColour}[!] Te haz quedado sin dinero para la siguiente apuesta\n"
+  if [[ "$technique" == "i" ]]; then
+    echo -e "${yellowColour}[+]${endColour} ${grayColour}La siguiente apuesta es de $bet, tu saldo actual es de \$$money${endColour}"
+  else
+    echo -e "${yellowColour}[+]${endColour} ${grayColour}La siguiente apuesta es de $initial_bet, tu saldo actual es de \$$money${endColour}"
+  fi
 
-  echo -e "${redColour}[!] Te haz quedado sin dinero para la siguiente apuesta\n"
+
+  if [[ "$technique" == "i" ]]; then
+   vueltas=$(($vueltas - 1))
+  fi
 
   echo -e "${yellowColour}[+]${endColour} ${grayColour}Numero de vueltas: ${blueColour}$vueltas${endColour}"
   echo -e "${yellowColour}[+]${endColour} ${grayColour}Numero de vueltas ganadas: ${greenColour}$vueltasGanadas${endColour}"
   echo -e "${yellowColour}[+]${endColour} ${grayColour}Numero de vueltas perdidas: ${redColour}$vueltasPerdidas${endColour}\n"
+
+  echo -e "${yellowColour}[+]${endColour} ${grayColour}Numero de veces que se reinicio la serie: ${purpleColour}$reinicioSerie${endColour}\n"
 
   echo -e "${yellowColour}[+]${endColour} ${grayColour}Número de vueltas ganadas seguidas: ${greenColour}$mejorRacha${endColour}"
   echo -e "${yellowColour}[+]${endColour} ${grayColour}Serie de números de vueltas ganadas seguidas: ${greenColour}$serieMaximaGanadas${endColour}"
@@ -105,20 +117,21 @@ tecnicaMartingala () {
   serieActualPerdidas=""
   serieMaximaPerdidas=""
 
+  serieActualPerdidas=""
+  serieMaximaPerdidas=""
+
   echo -e "\n${yellowColour}[+]${endColour} ${grayColour}Vamos a jugar con la cantidad inicial de ${yellowColour}\$${initial_bet}${endColour} ${grayColour}a${endColour} ${blueColour}$par_impar${endColour}\n"
   
   tput civis
   
-  serieActualPerdidas=""
-  serieMaximaPerdidas=""
 
   case "$par_impar" in
     par)
       while [[ "$money" -gt 0 ]]; do
         declare -i vueltas+=1
         numero=$(ruleta)
+        
         # Pierdes
-
         ultimaPerdida=initial_bet
 
         if [ "$numero" -eq 0 ]; then
@@ -156,6 +169,7 @@ tecnicaMartingala () {
             #echo -e "${greenColour}[+] Es par, ganaste la cantidad de \$$reward  ahora tienes \$${money}${endColour}\n" 
             
             initial_bet=$initial_bet_backup
+
             vueltasGanadas+=1
             rachaActualGanadas+=1
             gananciaActual=$money
@@ -292,71 +306,172 @@ tecnicaInverseLabrouchere() {
   datos_apuesta
   parImpar
 
-declare -a serieNumerosBackup=(1 2 3 4)
-declare -a serieNumeros=(1 2 3 4)
+  # Estadisticas
+  # Ganas
+  declare -i vueltas=0
+  declare -i vueltasGanadas=0
+  declare -i mejorRacha=0
+  declare -i rachaActualGanadas=0
+  declare -i gananciaActual=0
+  declare -i gananciaMaxima=0
+  serieActualGanadas=""
+  serieMaximaGanadas=""
+  # Pierdes
+  declare -i vueltasPerdidas=0
+  declare -i peorRacha=0
+  declare -i ultimaPerdida=0
+  serieActualPerdidas=""
+  serieMaximaPerdidas=""
+
+  declare -i reinicioSerie=0
+  serieActualPerdidas=""
+  serieMaximaPerdidas=""
+  # Backup
+  money_backup=$money
+
+  declare -a serieNumerosBackup=(1 2 3 4)
+  declare -a serieNumeros=(1 2 3 4)
 
   case "$par_impar" in
     par)
       while true; do
-        sleep 2
+        declare -i vueltas+=1
+        ganancia=$(($money - $money_backup))
+
+        if [[ "$money" -le 0 ]]; then
+          break
+        fi
+
+        if [[ "${#serieNumeros[@]}" -eq 0 ]] || [[ "$ganancia" -ge 100 ]]; then
+          #echo -e "\n${purpleColour}[+] Se ha reiniciado la secuencia${endColour}"
+          serieNumeros=(${serieNumerosBackup[@]})
+          #echo -e "${serieNumeros[@]}\n"
+          reinicioSerie+=1
+        fi
+
+        #sleep 0.2
         numero=$(ruleta)
         # Pierdes
+        ultimaPerdida=bet
+
         if [ "$numero" -eq 0 ]; then
+          serieActualGanadas=""
+          rachaActualGanadas=0
+
+          # Estadisticas
+          vueltasPerdidas+=1
+          peorRacha+=1
+          serieActualPerdidas+="$numero "
+          count1=$(echo "$serieActualPerdidas" | wc -w)
+          count2=$(echo "$serieMaximaPerdidas" | wc -w)
+          
+          if [[ "$count1" -gt "$count2" ]]; then
+              serieMaximaPerdidas=$serieActualPerdidas
+          fi
+
           bet=$((${serieNumeros[0]} + ${serieNumeros[-1]}))
           money=$(($money - $bet))
-          unset serieNumeros[0]
-          unset serieNumeros[-1]
+          # Borrar extremos
+          if [[ "${#serieNumeros[@]}" -eq 1 ]]; then
+            unset serieNumeros[0]
+          else
+            unset serieNumeros[0]
+            unset serieNumeros[-1]
+          fi
+
           serieNumeros=(${serieNumeros[@]})
 
-          echo "$numero"
-          echo -e "${redColour}[+] Ha salido 0 perdiste${endColour}"  
-          echo "[+] Acabas de apostar la cantida de $bet"
-          echo "[+] Ahora tienes la cantidad de \$$money"
-          echo "${serieNumeros[@]}"
-          echo ""
+          #echo "$numero"
+          #echo -e "${redColour}[+] Ha salido 0 perdiste${endColour}"  
+          #echo "[+] Acabas de apostar la cantida de $bet"
+          #echo "[+] Ahora tienes la cantidad de \$$money"
+          #echo -e "${serieNumeros[@]}\n"
+          
         else
         # Ganas
           if [ "$(($numero % 2))" -eq 0 ]; then
+            serieActualPerdidas=""
+            peorRacha=0
+
             bet=$((${serieNumeros[0]} + ${serieNumeros[-1]}))
             serieNumeros+=($bet)
             money=$(($money - $bet))
             reward=$(($bet * 2))
-            echo ""
 
-            echo "${serieNumeros[@]}"
-            echo "$numero"
-            echo "[+] Acabas de apostar la cantida de $bet"
-            echo "[+] Ahora tienes la cantidad de \$$money"
-            echo -e "${greenColour}[+] Ha salido par ganaste${endColour}"
+            #echo -e "/n${serieNumeros[@]}"
+            #echo "$numero"
+            #echo "[+] Acabas de apostar la cantida de $bet"
+            #echo "[+] Ahora tienes la cantidad de \$$money"
+            #echo -e "${greenColour}[+] Ha salido par ganaste${endColour}"
             money=$(($money + $reward))
-            echo -e "[+] Ahora tienes la cantidad de \$$money \n"
-            #echo ""
+            #echo -e "[+] Ahora tienes la cantidad de \$$money \n"
+            
+            vueltasGanadas+=1
+            rachaActualGanadas+=1
+            gananciaActual=$money
+            serieActualGanadas+="$numero "
+            count1=$(echo "$serieActualGanadas" | wc -w)
+            count2=$(echo "$serieMaximaGanadas" | wc -w)
+
+            if [[ "$gananciaActual" -gt "$gananciaMaxima" ]]; then
+              gananciaMaxima=$gananciaActual
+            fi
+
+            if [ "$rachaActualGanadas" -gt "$mejorRacha" ]; then
+              mejorRacha=$rachaActualGanadas
+            fi
+            
+            if [[ "$count1" -gt "$count2" ]]; then
+                serieMaximaGanadas=$serieActualGanadas
+            fi
 
           # Pierdes
           else
+            ultimaPerdida=bet
+
             bet=$((${serieNumeros[0]} + ${serieNumeros[-1]}))
             money=$(($money - $bet))
-            unset serieNumeros[0]
-            unset serieNumeros[-1]
-            serieNumeros=(${serieNumeros[@]})
-            echo ""
+           
+            if [[ "${#serieNumeros[@]}" -eq 1 ]]; then
+              unset serieNumeros[0]
+            else
+              unset serieNumeros[0]
+              unset serieNumeros[-1]
+            fi
 
-            echo "$numero"
-            echo -e "${redColour}[+] Ha salido impar perdiste${endColour}"
-            echo "[+] Acabas de apostar la cantida de $bet"
-            echo "[+] Ahora tienes la cantidad de \$$money"
-            echo "${serieNumeros[@]}"
-            echo ""
+            serieNumeros=(${serieNumeros[@]})
+            #echo ""
+
+            #echo "$numero"
+            #echo -e "${redColour}[+] Ha salido impar perdiste${endColour}"
+            #echo "[+] Acabas de apostar la cantida de $bet"
+            #echo "[+] Ahora tienes la cantidad de \$$money"
+            #echo "${serieNumeros[@]}"
+            #echo ""
+
+            # Estadisticas
+          vueltasPerdidas+=1
+          peorRacha+=1
+          serieActualPerdidas+="$numero "
+          count1=$(echo "$serieActualPerdidas" | wc -w)
+          count2=$(echo "$serieMaximaPerdidas" | wc -w)
+          
+          if [[ "$count1" -gt "$count2" ]]; then
+              serieMaximaPerdidas=$serieActualPerdidas
+          fi
 
           fi
         fi
       done
+      estadisticas
     ;;
     impar) 
       while [[ 1 -eq 1 ]]; do
         sleep 1
         numero=$(ruleta)
         # Pierdes
+        ultimaPerdida=bet
+
         if [ "$numero" -eq 0 ]; then
           echo "$numero"
           echo "[+] Ha salido 0 perdiste"
@@ -374,6 +489,7 @@ declare -a serieNumeros=(1 2 3 4)
       done
     ;; 
   esac
+  #estadisticas
 
 }
 
